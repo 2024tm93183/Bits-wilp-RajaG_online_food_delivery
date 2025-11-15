@@ -1,0 +1,126 @@
+version: '3.8'
+services:
+  redis:
+    image: redis:7
+    ports:
+    - 6379:6379
+  customer_service_db:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: dev
+      POSTGRES_PASSWORD: dev
+      POSTGRES_DB: customerdb
+    ports:
+    - 5433:5432
+    volumes:
+    - ./pgdata/customerdb:/var/lib/postgresql/data
+  customer_service:
+    build: ./customer_service
+    ports:
+    - 8001:8000
+    environment:
+    - DATABASE_URL=postgresql://dev:dev@customer_service_db:5432/customerdb
+    - REDIS_URL=redis://redis:6379/0
+    depends_on:
+    - customer_service_db
+    - redis
+  restaurant_service_db:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: dev
+      POSTGRES_PASSWORD: dev
+      POSTGRES_DB: restaurantdb
+    ports:
+    - 5434:5432
+    volumes:
+    - ./pgdata/restaurantdb:/var/lib/postgresql/data
+  restaurant_service:
+    build: ./restaurant_service
+    ports:
+    - 8002:8000
+    environment:
+    - DATABASE_URL=postgresql://dev:dev@restaurant_service_db:5432/restaurantdb
+    - REDIS_URL=redis://redis:6379/0
+    depends_on:
+    - restaurant_service_db
+    - redis
+  order_service_db:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: dev
+      POSTGRES_PASSWORD: dev
+      POSTGRES_DB: orderdb
+    ports:
+    - 5435:5432
+    volumes:
+    - ./pgdata/orderdb:/var/lib/postgresql/data
+  order_service:
+    build: ./order_service
+    ports:
+    - 8003:8000
+    environment:
+    - DATABASE_URL=postgresql://dev:dev@order_service_db:5432/orderdb
+    - REDIS_URL=redis://redis:6379/0
+    depends_on:
+    - order_service_db
+    - redis
+  payment_service_db:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: dev
+      POSTGRES_PASSWORD: dev
+      POSTGRES_DB: paymentdb
+    ports:
+    - 5436:5432
+    volumes:
+    - ./pgdata/paymentdb:/var/lib/postgresql/data
+  payment_service:
+    build: ./payment_service
+    ports:
+    - 8004:8000
+    environment:
+    - DATABASE_URL=postgresql://dev:dev@payment_service_db:5432/paymentdb
+    - REDIS_URL=redis://redis:6379/0
+    depends_on:
+    - payment_service_db
+    - redis
+  delivery_service_db:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: dev
+      POSTGRES_PASSWORD: dev
+      POSTGRES_DB: deliverydb
+    ports:
+    - 5437:5432
+    volumes:
+    - ./pgdata/deliverydb:/var/lib/postgresql/data
+  delivery_service:
+    build: ./delivery_service
+    ports:
+    - 8005:8000
+    environment:
+    - DATABASE_URL=postgresql://dev:dev@delivery_service_db:5432/deliverydb
+    - REDIS_URL=redis://redis:6379/0
+    depends_on:
+    - delivery_service_db
+    - redis
+  notification_service_db:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: dev
+      POSTGRES_PASSWORD: dev
+      POSTGRES_DB: notificationdb
+    ports:
+    - 5438:5432
+    volumes:
+    - ./pgdata/notificationdb:/var/lib/postgresql/data
+  notification_service:
+    build: ./notification_service
+    ports:
+    - 8006:8000
+    environment:
+    - DATABASE_URL=postgresql://dev:dev@notification_service_db:5432/notificationdb
+    - REDIS_URL=redis://redis:6379/0
+    depends_on:
+    - notification_service_db
+    - redis

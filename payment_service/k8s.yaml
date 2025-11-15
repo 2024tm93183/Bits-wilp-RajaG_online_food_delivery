@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: payment_service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: payment_service
+  template:
+    metadata:
+      labels:
+        app: payment_service
+    spec:
+      containers:
+      - name: payment_service
+        image: payment_service:latest
+        ports:
+        - containerPort: 8000
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 15
+          periodSeconds: 20
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: payment_service
+spec:
+  selector:
+    app: payment_service
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 8000
+  type: ClusterIP
